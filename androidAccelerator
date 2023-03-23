@@ -1,0 +1,23 @@
+android手游加速器简述与代码实现
+这几年手游加速器很火。以光环为代表，进行C层的HOOK,既可以实现加速，又可以免Root保证手机安全。
+a. 什么是加速？
+    加速就是改变游戏的运行速度。
+b.怎么样才能加速？
+   根据不同的引擎有不同的加速方法。关键还是在认识引擎上。
+市面上大多数的游戏引擎大致可以分为  cocos2dx、Unity3d、 OpenGL。接下来我们分开来讲解各个引擎的加速方案。
+
+（1）cocos2dx 引擎一般是会有一个cocos2dx引擎动态库。由于cocos2dx是开源的软件，所以cocos2dx的引擎动态库的名字可以自定义。但是判断是不是cocos2dx引擎的游戏可以查看Java代码目录，是否有org/cocos2dx/目录，如果有这个目录就是cocos2dx引擎。
+coco2dx游戏有个setTimeScale函数，这个函数用来控制运行时间。timeScale的值越大运行速度越快，timeScale值越小运行速度越慢。但是一般的情况下开发者不会去调用setTimeScale。所以我们基本没机会通过HOOK来改变setTimeScale的值。但是我们可以通过引擎的Director来实现。 Director 来有个定时器Scheduler，在每帧更新的时候都会调用Update（float delay）。而update函数里面则会调用timeScale的值，来乘以delay得到运行最终的时间。所以改变delay的值也可以达到加速减速的效果。
+
+（2）Uity3d 引擎是一个闭源软件，所以会有统一的动态库 libunity.so。所以只要看到有libunity.so动态库，就基本确定是Unity3d游戏。
+
+Unity3d游戏照样也是有一个setTimeScale函数。所以通过Hook 来达到更改timeScale的值，即能达到加速减速效果。但是Unity3d游戏一般通过C#来开发。然后通过il2cpp或者mono运行时来执行。所以我们要通过Hook il2cpp或者mono的运行时方法来调用setTimeScale。
+il2cpp的关键函数是il2cpp_method_get_class、il2cpp_class_from_name、il2cpp_class_get_method_from_name
+mono的关键函数是mono_get_object_class、mono_class_from_name、mono_class_get_method_from_name
+通过HOOK这些函数，就可以更改timeScale的值了。
+libc.so中有gettimeofday函数。我们通过Hook 系统的gettimeofday函数来改变时间的流逝速度，也能达到加速的目的。
+
+
+有兴趣的兄弟可以加我bgy_era
+
+
